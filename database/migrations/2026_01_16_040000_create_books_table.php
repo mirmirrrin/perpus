@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('author')->nullable();
             $table->string('publisher')->nullable();
-            $table->string('category')->nullable();
+            $table->string('category_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->integer('stock');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

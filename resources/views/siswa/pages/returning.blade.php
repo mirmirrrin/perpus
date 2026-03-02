@@ -2,85 +2,148 @@
 @section('title', 'Pinjaman Saya')
 
 @section('content')
-<header class="mb-10">
-    <h2 class="text-4xl font-black text-gray-800 tracking-tighter uppercase">Daftar <span class="text-[#c65c6a]">Pinjaman Aktif</span></h2>
-    <p class="text-gray-400 text-[10px] font-black uppercase tracking-[3px] mt-2">Segera kembalikan jika sudah selesai membaca ya!</p>
-</header>
+<div class="max-w-7xl mx-auto">
+    {{-- Header Section --}}
+    <header class="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
+        <div>
+            <div class="inline-block px-4 py-1 rounded-full bg-[#fdf2f3] text-[#c65c6a] text-[10px] font-black uppercase tracking-[3px] mb-3 border border-[#c65c6a]/20">My Borrowing</div>
+            <h2 class="text-4xl font-black text-gray-800 tracking-tighter uppercase italic">PINJAMAN <span class="text-[#c65c6a]">AKTIF</span></h2>
+            <p class="text-gray-400 text-[11px] font-bold uppercase tracking-[0.3em] mt-2 flex items-center gap-2">
+                <span class="w-8 h-[2px] bg-[#c65c6a]"></span>
+                Daftar buku yang sedang kamu bawa
+            </p>
+        </div>
+        <div class="bg-white px-8 py-5 rounded-[2rem] shadow-sm border border-gray-50 hidden md:block text-right">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-1">Buku di Tangan</p>
+            <p class="text-2xl font-black text-[#c65c6a] tracking-tighter">{{ $transactions->count() }} <span class="text-gray-300 text-xs italic uppercase">Buku</span></p>
+        </div>
+    </header>
 
-{{-- Alert Sukses (Hijau) --}}
-@if(session('success'))
-<div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 rounded-xl flex items-center gap-3">
-    <i class="fas fa-check-circle text-green-500"></i>
-    <p class="text-green-700 font-bold text-sm">{{ session('success') }}</p>
+    {{-- Search Bar --}}
+    <div class="mb-12">
+        <form action="{{ route('siswa.borrow') }}" method="GET" class="relative max-w-xl">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul, penulis, atau penerbit..."
+                class="w-full pl-14 pr-14 py-5 rounded-[2.2rem] bg-white border-none shadow-sm focus:ring-2 focus:ring-[#c65c6a] transition-all font-bold text-sm text-gray-700">
+            <div class="absolute left-6 top-1/2 -translate-y-1/2 text-[#c65c6a]">
+                <i class="fas fa-search text-lg"></i>
+            </div>
+            @if(request('search'))
+            <a href="{{ route('siswa.borrow') }}" class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-rose-500">
+                <i class="fas fa-times-circle"></i>
+            </a>
+            @endif
+        </form>
+    </div>
+
+    {{-- Main Table Card --}}
+    <div class="bg-white rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-[#fcf7f8]/50 border-b border-gray-50">
+                        <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Detail Literasi</th>
+                        <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Penulis</th>
+                        <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Penerbit</th>
+                        <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Tenggat</th>
+                        <th class="px-10 py-8 text-center text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @forelse($transactions as $trx)
+                    @php
+                    $tenggat = \Carbon\Carbon::parse($trx->returned_at);
+                    $isTerlambat = now()->gt($tenggat);
+                    @endphp
+                    <tr class="bg-white hover:bg-gray-50/50 transition-all duration-300 group">
+                        {{-- Info Buku --}}
+                        <td class="px-10 py-8">
+                            <div class="flex items-center gap-5">
+                                <div class="w-14 h-14 bg-[#fdf2f3] text-[#c65c6a] rounded-[1.2rem] flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500">
+                                    <i class="fas fa-book-reader text-xl"></i>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-800 font-black text-sm uppercase tracking-tight italic">{{ $trx->book->name }}</span>
+                                    <span class="text-[9px] text-[#c65c6a] font-bold tracking-[0.2em] uppercase">ID: #BUK-{{ $trx->book_id }}</span>
+                                </div>
+                            </div>
+                        </td>
+
+                        {{-- Penulis (Dipisah) --}}
+                        <td class="px-8 py-7">
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <i class="fas fa-pen-nib text-[10px] text-[#c65c6a]"></i>
+                                <span class="text-[11px] font-bold uppercase tracking-tighter">{{ $trx->book->author }}</span>
+                            </div>
+                        </td>
+
+                        {{-- Penerbit (Dipisah) --}}
+                        <td class="px-8 py-7 text-gray-400">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-building text-[10px]"></i>
+                                <span class="text-[10px] font-black uppercase tracking-widest">{{ $trx->book->publisher ?? 'N/A' }}</span>
+                            </div>
+                        </td>
+
+                        {{-- Timeline --}}
+                        <td class="px-10 py-8">
+                            <div class="flex flex-col gap-2">
+                                <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Pinjam: {{ \Carbon\Carbon::parse($trx->borrowed_at)->format('d/m/y') }}</span>
+                                </div>
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl w-fit {{ $isTerlambat ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-blue-50 text-blue-600 border border-blue-100' }}">
+                                    <i class="fas fa-clock text-[10px]"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-tighter">
+                                        Tenggat: {{ $tenggat->format('d M Y') }}
+                                    </span>
+                                </div>
+                                @if($isTerlambat)
+                                <span class="text-[8px] font-black text-rose-400 uppercase animate-pulse">Sudah Melewati Batas!</span>
+                                @endif
+                            </div>
+                        </td>
+
+                        {{-- Tombol Aksi --}}
+                        <td class="px-8 py-7 text-center">
+                            <form action="{{ route('siswa.return.proses', $trx->id) }}" method="POST">
+                                @csrf
+                                <button class="bg-[#3a1620] hover:bg-[#c65c6a] text-white px-7 py-3 rounded-[1.2rem] text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-lg active:scale-95 group-hover:shadow-[#c65c6a]/20">
+                                    Kembalikan
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="p-32 text-center">
+                            <div class="flex flex-col items-center opacity-10">
+                                <i class="fas fa-box-open text-8xl mb-6 text-gray-400"></i>
+                                <p class="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">Belum ada buku yang dipinjam</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-@endif
 
-{{-- Alert Hapus/Error (Merah) --}}
-@if(session('error'))
-<div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 rounded-xl flex items-center gap-3">
-    <i class="fas fa-trash-alt text-red-500"></i>
-    <p class="text-red-700 font-bold text-sm">{{ session('error') }}</p>
-</div>
-@endif
+<style>
+    @keyframes bounce-short {
 
-<div class="bg-white rounded-[3rem] shadow-2xl shadow-[#c65c6a]/10 border border-gray-100 overflow-hidden">
-    <table class="w-full">
-        <thead class="bg-[#fdf6f7]">
-            <tr>
-                <th class="p-8 text-left text-[11px] font-black text-[#c65c6a] uppercase tracking-[3px]">Judul Koleksi</th>
-                <th class="p-8 text-left text-[11px] font-black text-[#c65c6a] uppercase tracking-[3px]">Tanggal Pinjam</th>
-                {{-- TAMBAHAN HEADER TENGGAT --}}
-                <th class="p-8 text-left text-[11px] font-black text-[#c65c6a] uppercase tracking-[3px]">Tenggat Waktu</th>
-                <th class="p-8 text-center text-[11px] font-black text-[#c65c6a] uppercase tracking-[3px]">Tindakan</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-50 font-bold">
-            @forelse($transactions as $trx)
-            @php
-            $tenggat = \Carbon\Carbon::parse($trx->returned_at);
-            $isTerlambat = now()->gt($tenggat);
-            @endphp
-            <tr class="hover:bg-[#fdf6f7]/30 transition-all">
-                <td class="p-8">
-                    <span class="block text-gray-800 uppercase tracking-tight">{{ $trx->book->name }}</span>
-                    <span class="text-[10px] text-gray-400 uppercase italic">ID Buku: #{{ $trx->book_id }}</span>
-                </td>
-                <td class="p-8 text-sm text-gray-500">
-                    {{ \Carbon\Carbon::parse($trx->borrowed_at)->format('d F Y') }}
-                </td>
+        0%,
+        100% {
+            transform: translateY(0);
+        }
 
-                {{-- ISI KOLOM TENGGAT --}}
-                <td class="p-8">
-                    <div class="flex flex-col">
-                        <span class="text-sm {{ $isTerlambat ? 'text-red-500 animate-pulse' : 'text-gray-600' }}">
-                            {{ $tenggat->format('d F Y') }}
-                        </span>
-                        @if($isTerlambat)
-                        <span class="text-[9px] font-black text-red-600 uppercase italic">Terlambat!</span>
-                        @endif
-                    </div>
-                </td>
+        50% {
+            transform: translateY(-5px);
+        }
+    }
 
-                <td class="p-8 text-center">
-                    <form action="{{ route('siswa.return.proses', $trx->id) }}" method="POST">
-                        @csrf
-                        <button class="bg-white border-2 border-[#c65c6a] text-[#c65c6a] px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#c65c6a] hover:text-white transition-all shadow-sm active:scale-95">
-                            Balikin Buku
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="4" class="p-24 text-center">
-                    <div class="w-20 h-20 bg-[#fdf6f7] rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-ghost text-[#c65c6a]/30 text-2xl"></i>
-                    </div>
-                    <p class="text-gray-400 font-black uppercase tracking-[3px] text-xs italic">Kosong. Kamu tidak meminjam apapun.</p>
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+    .animate-bounce-short {
+        animation: bounce-short 2s ease-in-out infinite;
+    }
+</style>
 @endsection

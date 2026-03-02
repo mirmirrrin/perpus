@@ -67,11 +67,19 @@ class StudentDashboardController extends Controller
         return view('siswa.pages.borrowing', compact('books', 'myRequests'));
     }
 
-    public function returning()
+    public function returning(Request $request) // Tambahkan parameter Request
     {
+        $search = $request->query('search');
+
         $transactions = Transaction::with('book')
             ->where('user_id', auth()->id())
             ->where('status', 'borrowed')
+            ->when($search, function ($query) use ($search) {
+                // Mencari berdasarkan nama buku di tabel 'books'
+                $query->whereHas('book', function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%');
+                });
+            })
             ->latest()
             ->get();
 

@@ -165,35 +165,48 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::findOrFail($id);
 
-        if ($transaction->status == 'pending') {
-            $transaction->update(['status' => 'borrowed']);
-            $transaction->book->decrement('stock'); // Stok berkurang saat di-ACC
-
-            return redirect()->back()->with('success', 'Peminjaman disetujui!');
+        if ($transaction->status !== 'pending') {
+            return redirect()->back()->with('error', 'Gagal menyetujui.');
         }
 
-        return redirect()->back()->with('error', 'Gagal menyetujui.');
+        // Pastikan stok masih ada
+        if ($transaction->book->stock <= 0) {
+            return redirect()->back()->with('error', 'Stok buku habis!');
+        }
+
+        $transaction->status = 'borrowed';
+        $transaction->save();
+
+        $transaction->book->decrement('stock');
+
+        return redirect()->back()->with('success', 'Peminjaman disetujui!');
     }
 
     public function reject(Request $request, $id)
     {
         $transaction = Transaction::findOrFail($id);
 
-        if ($transaction->status == 'pending') {
-            $reason = $request->rejection_reason_manual ?? $request->rejection_reason_select;
-
-            if (!$reason) {
-                return redirect()->back()->with('error', 'Pilih atau isi alasan dulu, Mir!');
-            }
-
-            $transaction->update([
-                'status' => 'rejected',
-                'rejection_reason' => $reason
-            ]);
-
-            return redirect()->back()->with('success', 'Berhasil ditolak!');
+        // Pastikan hanya bisa reject kalau masih pending
+        if ($transaction->status !== 'pending') {
+            return redirect()->back()->with('error', 'Gagal, status bukan pending.');
         }
 
-        return redirect()->back()->with('error', 'Gagal, status bukan pending.');
+        // Validasi alasan wajib diisi
+        $request->validate([
+            'rejection_reason_manual' => 'nullable|string',
+            'rejection_reason_select' => 'nullable|string',
+        ]);
+
+        $reason = $request->rejection_reason_manual ?: $request->rejection_reason_select;
+
+        if (!$reason) {
+            return redirect()->back()->with('error', 'Pilih atau isi alasannya dahulu!');
+        }
+
+        $transaction->status = 'rejected';
+        $transaction->rejection_reason = $reason;
+        $transaction->save();
+
+        return redirect()->back()->with('success', 'Berhasil ditolak!');
     }
 }
