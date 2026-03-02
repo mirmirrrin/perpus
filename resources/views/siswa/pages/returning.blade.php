@@ -21,14 +21,14 @@
 
     {{-- Search Bar --}}
     <div class="mb-12">
-        <form action="{{ route('siswa.borrow') }}" method="GET" class="relative max-w-xl">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari judul, penulis, atau penerbit..."
+        <form action="{{ route('siswa.return') }}" method="GET" class="relative max-w-xl">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari buku yang ingin dikembalikan..."
                 class="w-full pl-14 pr-14 py-5 rounded-[2.2rem] bg-white border-none shadow-sm focus:ring-2 focus:ring-[#c65c6a] transition-all font-bold text-sm text-gray-700">
             <div class="absolute left-6 top-1/2 -translate-y-1/2 text-[#c65c6a]">
                 <i class="fas fa-search text-lg"></i>
             </div>
             @if(request('search'))
-            <a href="{{ route('siswa.borrow') }}" class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-rose-500">
+            <a href="{{ route('siswa.return') }}" class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-rose-500">
                 <i class="fas fa-times-circle"></i>
             </a>
             @endif
@@ -55,7 +55,6 @@
                     $isTerlambat = now()->gt($tenggat);
                     @endphp
                     <tr class="bg-white hover:bg-gray-50/50 transition-all duration-300 group">
-                        {{-- Info Buku --}}
                         <td class="px-10 py-8">
                             <div class="flex items-center gap-5">
                                 <div class="w-14 h-14 bg-[#fdf2f3] text-[#c65c6a] rounded-[1.2rem] flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500">
@@ -68,7 +67,6 @@
                             </div>
                         </td>
 
-                        {{-- Penulis (Dipisah) --}}
                         <td class="px-8 py-7">
                             <div class="flex items-center gap-2 text-gray-600">
                                 <i class="fas fa-pen-nib text-[10px] text-[#c65c6a]"></i>
@@ -76,7 +74,6 @@
                             </div>
                         </td>
 
-                        {{-- Penerbit (Dipisah) --}}
                         <td class="px-8 py-7 text-gray-400">
                             <div class="flex items-center gap-2">
                                 <i class="fas fa-building text-[10px]"></i>
@@ -84,7 +81,6 @@
                             </div>
                         </td>
 
-                        {{-- Timeline --}}
                         <td class="px-10 py-8">
                             <div class="flex flex-col gap-2">
                                 <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400">
@@ -98,16 +94,15 @@
                                     </span>
                                 </div>
                                 @if($isTerlambat)
-                                <span class="text-[8px] font-black text-rose-400 uppercase animate-pulse">Sudah Melewati Batas!</span>
+                                <span class="text-[8px] font-black text-rose-400 uppercase animate-pulse">Terlambat!</span>
                                 @endif
                             </div>
                         </td>
 
-                        {{-- Tombol Aksi --}}
                         <td class="px-8 py-7 text-center">
-                            <form action="{{ route('siswa.return.proses', $trx->id) }}" method="POST">
+                            <form action="{{ route('siswa.return.proses', $trx->id) }}" method="POST" onsubmit="return confirm('Kembalikan buku ini sekarang?')">
                                 @csrf
-                                <button class="bg-[#3a1620] hover:bg-[#c65c6a] text-white px-7 py-3 rounded-[1.2rem] text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-lg active:scale-95 group-hover:shadow-[#c65c6a]/20">
+                                <button type="submit" class="bg-[#3a1620] hover:bg-[#c65c6a] text-white px-7 py-3 rounded-[1.2rem] text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-lg active:scale-95 group-hover:shadow-[#c65c6a]/20">
                                     Kembalikan
                                 </button>
                             </form>
@@ -115,10 +110,17 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="p-32 text-center">
-                            <div class="flex flex-col items-center opacity-10">
-                                <i class="fas fa-box-open text-8xl mb-6 text-gray-400"></i>
-                                <p class="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">Belum ada buku yang dipinjam</p>
+                        {{-- PERBAIKAN: Colspan diubah menjadi 5 agar sesuai jumlah kolom --}}
+                        <td colspan="5" class="p-32 text-center">
+                            <div class="flex flex-col items-center opacity-20">
+                                <i class="fas fa-search-minus text-8xl mb-6 text-gray-400"></i>
+                                <p class="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">
+                                    @if(request('search'))
+                                    Buku "{{ request('search') }}" tidak ditemukan
+                                    @else
+                                    Belum ada buku yang dipinjam
+                                    @endif
+                                </p>
                             </div>
                         </td>
                     </tr>
@@ -128,22 +130,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    @keyframes bounce-short {
-
-        0%,
-        100% {
-            transform: translateY(0);
-        }
-
-        50% {
-            transform: translateY(-5px);
-        }
-    }
-
-    .animate-bounce-short {
-        animation: bounce-short 2s ease-in-out infinite;
-    }
-</style>
 @endsection

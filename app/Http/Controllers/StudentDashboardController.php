@@ -44,44 +44,40 @@ class StudentDashboardController extends Controller
         return view('siswa.dashboard', compact('activeBorrowCount', 'pendingCount', 'myRequests'));
     }
 
-    public function borrowing(Request $request) // Tambah Request
+    public function borrowing(Request $request)
     {
         $search = $request->search;
 
-        // 1. Ambil koleksi buku (Bisa di-search oleh siswa)
         $books = Book::with('category')
-            ->where('stock', '>', 0)
+            // Jangan di-filter stock > 0 di sini supaya buku tetap ketemu pas di-search
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
                     ->orWhere('author', 'like', "%{$search}%");
             })
             ->get();
 
-        // 2. Ambil riwayat request siswa
-        $myRequests = Transaction::with('book')
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->take(5)
-            ->get();
-
-        return view('siswa.pages.borrowing', compact('books', 'myRequests'));
+        return view('siswa.pages.borrowing', compact('books'));
     }
 
-    public function returning(Request $request) // Tambahkan parameter Request
+    public function returning(Request $request)
     {
         $search = $request->query('search');
 
         $transactions = Transaction::with('book')
             ->where('user_id', auth()->id())
-            ->where('status', 'borrowed')
+            ->where('status', 'borrowed') // Hanya yang statusnya sedang dipinjam
             ->when($search, function ($query) use ($search) {
-                // Mencari berdasarkan nama buku di tabel 'books'
                 $query->whereHas('book', function ($q) use ($search) {
                     $q->where('name', 'like', '%' . $search . '%');
                 });
             })
             ->latest()
             ->get();
+
+        // Jika sedang mencari tapi tidak ada hasil, kirim pesan peringatan
+        if ($search && $transactions->isEmpty()) {
+            session()->flash('info', 'Buku "' . $search . '" tidak ditemukan di daftar pinjaman aktif Anda.');
+        }
 
         return view('siswa.pages.returning', compact('transactions'));
     }
@@ -96,6 +92,7 @@ class StudentDashboardController extends Controller
             'name'  => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'class' => 'required|string',
+            'phone' => 'required',
         ]);
 
         \App\Models\User::create([
@@ -104,6 +101,7 @@ class StudentDashboardController extends Controller
             'username' => $request->email,
             'password' => bcrypt('password123'),
             'role'     => 'siswa',
+            'phone'    => $request->phone,
         ]);
 
         return redirect()->route('admin.student.index')->with('success', 'Siswa berhasil didaftarkan!');
@@ -121,6 +119,7 @@ class StudentDashboardController extends Controller
         $request->validate([
             'name'  => 'required',
             'email' => 'required|email|unique:users,email,' . $id,
+            'phone' => 'required',
         ]);
 
         $student = \App\Models\User::where('role', 'siswa')->findOrFail($id);
@@ -128,6 +127,7 @@ class StudentDashboardController extends Controller
         $student->update([
             'name'  => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
         ]);
 
         return redirect()->route('admin.student.index')->with('success', 'Data siswa berhasil diupdate!');

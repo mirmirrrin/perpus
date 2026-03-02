@@ -7,7 +7,7 @@
     <header class="mb-10 flex flex-col md:flex-row justify-between items-end gap-6">
         <div>
             <div class="inline-block px-4 py-1 rounded-full bg-[#fdf2f3] text-[#c65c6a] text-[10px] font-black uppercase tracking-[3px] mb-3 border border-[#c65c6a]/20">Borrowing</div>
-            <h2 class="text-4xl font-black text-gray-800 tracking-tighter uppercase italic text-white/0 bg-clip-text bg-gradient-to-r from-gray-800 to-gray-500">PINJAM <span class="text-[#c65c6a]">BUKU</span></h2>
+            <h2 class="text-4xl font-black text-gray-800 tracking-tighter uppercase italic">PINJAM <span class="text-[#c65c6a]">BUKU</span></h2>
             <p class="text-gray-400 text-[11px] font-bold uppercase tracking-[0.3em] mt-2 flex items-center gap-2">
                 <span class="w-8 h-[2px] bg-[#c65c6a]"></span>
                 Temukan referensi belajar terbaikmu
@@ -79,7 +79,7 @@
                 </div>
 
                 @if($book->stock > 0)
-                <form action="{{ route('siswa.borrow.request', $book->id) }}" method="POST">
+                <form action="{{ route('siswa.borrow.request', $book->id) }}" method="POST" onsubmit="return confirm('Ajukan pinjaman untuk buku ini?')">
                     @csrf
                     <button type="submit" class="w-full bg-[#c65c6a] hover:bg-[#3a1620] text-white py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] transition-all shadow-lg active:scale-95">
                         Ajukan Pinjaman
@@ -92,10 +92,25 @@
                 @endif
             </div>
         </div>
+
         @empty
-        {{-- Tampilan Kosong --}}
-        <div class="col-span-full py-20 text-center">
-            <p class="text-gray-300 font-black uppercase tracking-[0.5em] text-sm italic">Data Tidak Tersedia</p>
+        {{-- Tampilan Kosong (Sama dengan Returning Style) --}}
+        <div class="col-span-full py-32 text-center">
+            <div class="flex flex-col items-center opacity-20">
+                <i class="fas fa-search-minus text-8xl mb-6 text-gray-400"></i>
+                <p class="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">
+                    @if(request('search'))
+                    Buku "{{ request('search') }}" tidak ditemukan dalam koleksi
+                    @else
+                    Koleksi buku belum tersedia saat ini
+                    @endif
+                </p>
+                @if(request('search'))
+                <a href="{{ route('siswa.borrow') }}" class="mt-6 px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">
+                    Reset Pencarian
+                </a>
+                @endif
+            </div>
         </div>
         @endforelse
     </div>

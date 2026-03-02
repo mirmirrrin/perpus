@@ -87,6 +87,15 @@
                 </div>
 
                 <div class="group space-y-2">
+                    <label class="text-[10px] font-bold text-[#7a3b4b] uppercase tracking-widest ml-1">Nomor Telepon</label>
+                    <div class="flex items-center bg-gray-50 rounded-2xl px-5 py-4 border-2 border-gray-50 transition-all duration-300 input-focus-effect">
+                        <i class="fas fa-mobile-alt text-gray-400 group-focus-within:text-[#7a3b4b] mr-4"></i>
+                        <input type="text" name="phone" value="{{ old('phone') }}" placeholder="08123456789"
+                            class="bg-transparent w-full focus:outline-none text-gray-700 font-semibold placeholder:text-gray-300" required>
+                    </div>
+                </div>
+
+                <div class="group space-y-2">
                     <label class="text-[10px] font-bold text-[#7a3b4b] uppercase tracking-widest ml-1">Password</label>
                     <div class="relative flex items-center bg-gray-50 rounded-2xl px-5 py-4 border-2 border-gray-50 transition-all duration-300 input-focus-effect">
                         <i class="fas fa-lock text-gray-400 group-focus-within:text-[#7a3b4b] mr-4"></i>

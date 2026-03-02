@@ -38,6 +38,16 @@
                         class="w-full px-7 py-5 bg-[#fcf7f8] rounded-2xl border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none font-bold text-gray-700 transition-all shadow-sm">
                 </div>
 
+                {{-- tlp --}}
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-[#c65c6a] tracking-widest ml-1">Nomor Telepon</label>
+                    <div class="relative">
+                        <input type="text" name="phone" value="{{ old('phone', $student->phone) }}" placeholder="08xxxxxxxxxx"
+                            class="w-full px-7 py-5 bg-[#fcf7f8] rounded-2xl border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none font-bold text-gray-700 transition-all shadow-sm">
+                        <i class="fas fa-phone absolute right-6 top-1/2 -translate-y-1/2 text-[#c65c6a] opacity-20"></i>
+                    </div>
+                </div>
+
                 {{-- Status Keanggotaan --}}
                 <div class="space-y-2">
                     <label class="text-[10px] font-black uppercase text-gray-300 tracking-widest ml-1">Status Keanggotaan</label>

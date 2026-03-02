@@ -3,7 +3,7 @@
 @section('title', 'Data Anggota Siswa')
 
 @section('content')
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     {{-- Header Section --}}
     <div class="bg-white rounded-[2.5rem] p-10 shadow-sm mb-10 border-b-8 border-[#c65c6a] flex flex-col lg:flex-row justify-between items-center gap-8 transition-all hover:shadow-md">
         <div>
@@ -15,6 +15,7 @@
         </div>
 
         <div class="flex flex-col md:flex-row items-center gap-5 w-full lg:w-auto">
+            {{-- Search Bar --}}
             <form action="{{ route('admin.student.index') }}" method="GET" class="relative group w-full md:w-80">
                 <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Cari nama atau email..."
                     class="w-full pl-12 pr-12 py-4 rounded-2xl bg-[#fcf7f8] border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none text-sm font-bold transition-all shadow-inner">
@@ -23,6 +24,7 @@
                 </div>
             </form>
 
+            {{-- Add Button --}}
             <a href="{{ route('admin.student.create') }}" class="w-full md:w-auto bg-[#c65c6a] hover:bg-gray-800 text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-[#c65c6a]/20 transition-all active:scale-95 flex items-center justify-center gap-3">
                 <i class="fas fa-user-plus text-lg"></i>
                 <span class="tracking-widest text-[11px] uppercase whitespace-nowrap">Tambah Siswa</span>
@@ -39,18 +41,21 @@
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">ID Siswa</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nama Lengkap</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Akun Email</th>
-                        <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Kontak</th>
+                        <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nomor Telepon</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center w-48">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @forelse($students as $student)
                     <tr class="bg-white hover:bg-gray-50 transition-all duration-300 group">
+                        {{-- ID --}}
                         <td class="px-10 py-6">
                             <span class="bg-[#fdf2f3] text-[#c65c6a] px-4 py-2 rounded-xl font-black text-[10px] border border-[#f5e1e4] shadow-sm">
                                 #{{ $student->id }}
                             </span>
                         </td>
+
+                        {{-- Nama --}}
                         <td class="px-10 py-6">
                             <div class="flex items-center gap-3">
                                 <div class="w-1.5 h-6 bg-[#c65c6a]/20 rounded-full group-hover:bg-[#c65c6a] transition-all"></div>
@@ -59,9 +64,13 @@
                                 </span>
                             </div>
                         </td>
+
+                        {{-- Email --}}
                         <td class="px-10 py-6">
                             <p class="text-sm text-gray-500 font-bold italic opacity-70">{{ $student->email }}</p>
                         </td>
+
+                        {{-- KONTAK (NOMOR TELEPON SAJA) --}}
                         <td class="px-10 py-6">
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-700 tracking-tight italic">
@@ -72,14 +81,17 @@
                                 </span>
                             </div>
                         </td>
+
+                        {{-- Aksi --}}
                         <td class="px-10 py-6">
                             <div class="flex justify-center gap-3">
                                 <a href="{{ route('admin.student.edit', $student->id) }}"
                                     class="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm">
                                     <i class="fas fa-user-edit text-xs"></i>
                                 </a>
-                                <form action="{{ route('admin.student.destroy', $student->id) }}" method="POST" onsubmit="return confirm('Hapus data siswa ini?')">
-                                    @csrf @method('DELETE')
+                                <form action="{{ route('admin.student.destroy', $student->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data siswa ini?')">
+                                    @csrf
+                                    @method('DELETE')
                                     <button type="submit" class="w-10 h-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all shadow-sm">
                                         <i class="fas fa-trash-alt text-xs"></i>
                                     </button>
@@ -92,7 +104,10 @@
                         <td colspan="5" class="py-32 text-center">
                             <div class="opacity-20 flex flex-col items-center">
                                 <i class="fas fa-users-slash text-7xl mb-6 text-gray-300"></i>
-                                <p class="text-[11px] font-black uppercase tracking-[0.4em]">Siswa Tidak Terdaftar</p>
+                                <p class="text-[11px] font-black uppercase tracking-[0.4em]">Siswa Tidak Ditemukan</p>
+                                @if(request('search'))
+                                <a href="{{ route('admin.student.index') }}" class="mt-4 text-[#c65c6a] text-[10px] font-bold underline tracking-widest">RESET PENCARIAN</a>
+                                @endif
                             </div>
                         </td>
                     </tr>
