@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .maroon-gradient { background: linear-gradient(135deg, #4a1d28 0%, #743544 50%, #c65c6a 100%); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .maroon-gradient {
+            background: linear-gradient(135deg, #4a1d28 0%, #743544 50%, #c65c6a 100%);
+        }
+
         .sidebar-active {
             background: #fff !important;
             color: #743544 !important;
@@ -17,15 +24,32 @@
             transform: translateX(5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+
         /* Custom Scrollbar */
-        main::-webkit-scrollbar { width: 6px; }
-        main::-webkit-scrollbar-thumb { background: #c65c6a; border-radius: 10px; }
-        
-        @keyframes bounce-short {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        main::-webkit-scrollbar {
+            width: 6px;
         }
-        .animate-bounce-short { animation: bounce-short 2s ease-in-out infinite; }
+
+        main::-webkit-scrollbar-thumb {
+            background: #c65c6a;
+            border-radius: 10px;
+        }
+
+        @keyframes bounce-short {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .animate-bounce-short {
+            animation: bounce-short 2s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -55,14 +79,25 @@
         </nav>
 
         <div class="p-10 border-t border-white/5">
-            <div class="flex items-center gap-4 mb-8 bg-black/20 p-5 rounded-[2rem] border border-white/5">
-                <img src="https://ui-avatars.com/api/?name={{ Auth::user()->name }}&background=c65c6a&color=fff" class="w-10 h-10 rounded-2xl shadow-lg">
-                <div class="truncate">
-                    <p class="text-[8px] font-black uppercase opacity-40 tracking-widest italic">Account</p>
-                    <p class="text-xs font-black truncate tracking-tight">{{ Auth::user()->name }}</p>
-                </div>
-            </div>
+            {{-- Klik Nama/Foto untuk ke Profile --}}
+            <a href="{{ route('siswa.profile') }}" class="flex items-center gap-4 mb-8 bg-black/20 p-5 rounded-[2rem] border border-white/5 hover:bg-white/10 transition-all duration-300 group cursor-pointer block">
 
+                {{-- LOGIKA FOTO BARU DI SINI --}}
+                @if(Auth::user()->avatar)
+                <img src="{{ asset('storage/avatars/' . Auth::user()->avatar) }}"
+                    class="w-10 h-10 rounded-2xl shadow-lg group-hover:scale-110 transition-transform object-cover">
+                @else
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=c65c6a&color=fff"
+                    class="w-10 h-10 rounded-2xl shadow-lg group-hover:scale-110 transition-transform">
+                @endif
+
+                <div class="truncate">
+                    <p class="text-[8px] font-black uppercase opacity-40 tracking-widest italic group-hover:text-white transition-colors">Edit Profile</p>
+                    <p class="text-xs font-black truncate tracking-tight group-hover:underline">{{ Auth::user()->name }}</p>
+                </div>
+            </a>
+
+            {{-- Tombol Logout tetep sama --}}
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button class="w-full bg-rose-500/20 hover:bg-rose-500 py-5 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-3">
@@ -75,7 +110,7 @@
     {{-- Main Area --}}
     <main class="flex-1 h-full overflow-y-auto p-14 bg-[#fcf7f8]">
         <div class="max-w-7xl mx-auto pb-24">
-            
+
             {{-- OTOMATIS MUNCUL JIKA ADA SUCCESS --}}
             @if(session('success'))
             <div class="mb-10 p-5 bg-emerald-500 text-white rounded-[2rem] shadow-xl shadow-emerald-500/20 flex items-center gap-4 animate-bounce-short">
@@ -101,4 +136,5 @@
     </main>
 
 </body>
+
 </html>

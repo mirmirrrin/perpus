@@ -14,6 +14,55 @@
 </style>
 
 <div class="max-w-7xl mx-auto">
+
+    {{-- ALERT NOTIFIKASI SISWA: STATUS TERBARU --}}
+    @php
+    $hasUpdate = \App\Models\Transaction::where('user_id', auth()->id())
+    ->whereIn('status', ['borrowed', 'rejected', 'returned'])
+    ->where('updated_at', '>=', now()->subHours(24))
+    ->exists();
+    @endphp
+
+    @if($hasUpdate)
+    {{-- Tambahkan id="global-alert" supaya bisa dipanggil sama JavaScript --}}
+    <div id="global-alert" style="display: none;" class="mb-8 p-6 bg-gradient-to-r from-[#743544] to-[#c65c6a] rounded-[2.5rem] text-white shadow-xl shadow-[#743544]/20 flex items-center justify-between group relative transition-all duration-500 overflow-hidden">
+        <div class="flex items-center gap-5">
+            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center border border-white/30">
+                <i class="fas fa-info-circle text-lg"></i>
+            </div>
+            <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 italic">Pemberitahuan Sistem</p>
+                <h4 class="font-bold text-sm tracking-tight">
+                    Status peminjaman buku Anda telah diperbarui oleh Admin!
+                </h4>
+                <p class="text-[10px] opacity-60 font-medium">Silakan cek detail status pada tabel di bawah ini.</p>
+            </div>
+        </div>
+
+        {{-- Tombol Silang (Close) --}}
+        <button onclick="closeAlert()" class="w-10 h-10 rounded-2xl bg-black/10 hover:bg-white/20 flex items-center justify-center transition-all border border-white/10 group-hover:rotate-90">
+            <i class="fas fa-times text-xs"></i>
+        </button>
+
+        {{-- Efek Dekorasi biar makin cakep --}}
+        <div class="absolute -right-4 -top-4 w-12 h-12 bg-white opacity-5 rounded-full"></div>
+    </div>
+
+    <script>
+        function closeAlert() {
+            const alertBox = document.getElementById('global-alert');
+            // Kasih efek transisi sedikit pas hilang
+            alertBox.style.opacity = '0';
+            alertBox.style.transform = 'translateY(-20px)';
+
+            // Setelah animasi selesai, baru bener-bener dihapus dari tampilan
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 500);
+        }
+    </script>
+    @endif
+
     {{-- Hero Greeting --}}
     <section class="maroon-gradient rounded-[3.5rem] p-12 text-white relative overflow-hidden mb-12 shadow-2xl shadow-[#743544]/30">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">

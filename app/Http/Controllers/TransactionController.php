@@ -120,16 +120,30 @@ class TransactionController extends Controller
     }
 
     // FUNGSI UNTUK SISWA REQUEST PINJAM
+    // FUNGSI UNTUK SISWA REQUEST PINJAM
     public function pinjamBuku(Request $request, $id)
     {
         $book = Book::findOrFail($id);
+        $userId = auth()->id();
 
+        // LOGIKA CEK DUPLIKAT:
+        // Cek apakah user sudah pinjam buku yang SAMA dan belum dibalikin (status pending atau borrowed)
+        $alreadyBorrowed = Transaction::where('user_id', $userId)
+            ->where('book_id', $id)
+            ->whereIn('status', ['pending', 'borrowed'])
+            ->exists();
+
+        if ($alreadyBorrowed) {
+            return redirect()->back()->with('error', 'Kamu sudah meminjam buku ini atau sedang menunggu konfirmasi!');
+        }
+
+        // Cek stok
         if ($book->stock <= 0) {
             return redirect()->back()->with('error', 'Maaf, stok buku sedang habis!');
         }
 
         Transaction::create([
-            'user_id'     => auth()->id(),
+            'user_id'     => $userId,
             'book_id'     => $id,
             'borrowed_at' => now(),
             'returned_at' => now()->addDays(7), // Default tenggat 7 hari
@@ -179,7 +193,7 @@ class TransactionController extends Controller
 
         $transaction->book->decrement('stock');
 
-        return redirect()->back()->with('success', 'Peminjaman disetujui!');
+        return redirect()->back()->with('success', 'Peminjaman oleh ' . $transaction->user->name . ' telah DISETUJUI!');
     }
 
     public function reject(Request $request, $id)
@@ -188,7 +202,7 @@ class TransactionController extends Controller
 
         // Pastikan hanya bisa reject kalau masih pending
         if ($transaction->status !== 'pending') {
-            return redirect()->back()->with('error', 'Gagal, status bukan pending.');
+            return redirect()->back()->with('error', 'Gagal, Status transaksi bukan pending.');
         }
 
         // Validasi alasan wajib diisi
@@ -207,6 +221,6 @@ class TransactionController extends Controller
         $transaction->rejection_reason = $reason;
         $transaction->save();
 
-        return redirect()->back()->with('success', 'Berhasil ditolak!');
+        return redirect()->back()->with('success', 'Peminjaman ' . $transaction->user->name . ' telah DITOLAK dengan alasan: ' . $reason);
     }
 }

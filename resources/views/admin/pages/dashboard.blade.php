@@ -4,6 +4,54 @@
 
 @section('content')
 <div class="space-y-10">
+
+    {{-- ALERT NOTIFIKASI ADMIN: MUNCUL JIKA ADA PENDING --}}
+    @php
+    $pendingCount = \App\Models\Transaction::where('status', 'pending')->count();
+    @endphp
+
+    @if($pendingCount > 0)
+    {{-- Tambahkan id="admin-alert" --}}
+    <div id="admin-alert" class="mb-10 p-8 bg-gradient-to-r from-rose-600 to-[#7a3b4b] rounded-[3rem] shadow-2xl shadow-rose-200/50 flex flex-col md:flex-row items-center justify-between gap-6 transition-all duration-500 relative overflow-hidden">
+
+        <div class="flex items-center gap-6">
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-lg rounded-3xl flex items-center justify-center text-white text-2xl border border-white/30 animate-pulse">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div>
+                <h4 class="text-white font-black text-xl tracking-tighter uppercase italic">Perhatian Admin!</h4>
+                <p class="text-rose-100 text-sm font-bold opacity-80 uppercase tracking-widest">Ada {{ $pendingCount }} permintaan peminjaman baru yang butuh konfirmasi.</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <a href="{{ route('admin.transaction.index') }}" class="bg-white text-[#7a3b4b] px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg">
+                Cek Transaksi <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+
+            {{-- Tombol Silang buat Admin --}}
+            <button onclick="closeAdminAlert()" class="w-12 h-12 rounded-2xl bg-black/20 hover:bg-black/40 text-white flex items-center justify-center transition-all border border-white/10 group">
+                <i class="fas fa-times text-sm group-hover:rotate-90 transition-transform"></i>
+            </button>
+        </div>
+
+        {{-- Hiasan background biar nggak polos --}}
+        <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-white opacity-5 rounded-full blur-2xl"></div>
+    </div>
+
+    <script>
+        function closeAdminAlert() {
+            const adminBox = document.getElementById('admin-alert');
+            adminBox.style.opacity = '0';
+            adminBox.style.transform = 'scale(0.95)'; // Efek mengecil pas hilang
+
+            setTimeout(() => {
+                adminBox.style.display = 'none';
+            }, 500);
+        }
+    </script>
+    @endif
+
     {{-- Welcome Hero Section --}}
     <section class="bg-gradient-to-br from-[#3a1620] via-[#7a3b4b] to-[#c65c6a] rounded-[3rem] p-12 text-white relative overflow-hidden shadow-2xl shadow-[#7a3b4b]/30">
         <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">

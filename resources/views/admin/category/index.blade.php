@@ -16,12 +16,22 @@
 
         <div class="flex flex-col md:flex-row items-center gap-5 w-full lg:w-auto">
             {{-- Form Search --}}
-            <form action="{{ route('admin.category.index') }}" method="GET" class="relative group w-full md:w-80">
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama kategori..."
+            <form action="{{ route('admin.transaction.index') }}" method="GET" class="relative group w-full md:w-80" id="searchForm">
+                <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Cari nama kategori..."
                     class="w-full pl-12 pr-12 py-4 rounded-2xl bg-[#fcf7f8] border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none text-sm font-bold transition-all shadow-inner">
+
+                {{-- Icon Search (Kiri) --}}
                 <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#c65c6a]">
                     <i class="fas fa-search"></i>
                 </div>
+
+                {{-- Tombol X (Kanan) --}}
+                @if(request('search'))
+                <a href="{{ route('admin.transaction.index') }}"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#c65c6a] transition-colors">
+                    <i class="fas fa-times-circle"></i>
+                </a>
+                @endif
             </form>
 
             <a href="{{ route('admin.category.create') }}" class="w-full md:w-auto bg-[#c65c6a] hover:bg-gray-800 text-white px-10 py-4 rounded-2xl font-black shadow-xl shadow-[#c65c6a]/20 transition-all active:scale-95 flex items-center justify-center gap-3">

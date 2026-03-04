@@ -64,4 +64,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/siswa/return-action/{id}', [TransactionController::class, 'returnBook'])
         ->name('siswa.return.proses');
+
+    Route::get('/profile', [App\Http\Controllers\Siswa\ProfileController::class, 'index'])->name('siswa.profile');
+    Route::put('/profile/update', [App\Http\Controllers\Siswa\ProfileController::class, 'update'])->name('siswa.profile.update');
 });

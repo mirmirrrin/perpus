@@ -120,6 +120,7 @@ class StudentDashboardController extends Controller
             'name'  => 'required',
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'required',
+            'alamat' => 'nullable|string',
         ]);
 
         $student = \App\Models\User::where('role', 'siswa')->findOrFail($id);
@@ -128,6 +129,7 @@ class StudentDashboardController extends Controller
             'name'  => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
+            'alamat' => $request->alamat,
         ]);
 
         return redirect()->route('admin.student.index')->with('success', 'Data siswa berhasil diupdate!');

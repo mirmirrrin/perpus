@@ -15,6 +15,17 @@
         </a>
     </header>
 
+    <!-- foto profil -->
+    <div class="flex justify-center -mb-12 relative z-20">
+        <div class="p-2 bg-white rounded-full shadow-xl border border-gray-50">
+            @if($student->avatar)
+            <img src="{{ asset('storage/avatars/' . $student->avatar) }}" class="w-24 h-24 rounded-full object-cover border-4 border-[#fcf7f8]">
+            @else
+            <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&background=c65c6a&color=fff&size=128" class="w-24 h-24 rounded-full border-4 border-[#fcf7f8]">
+            @endif
+        </div>
+    </div>
+
     {{-- Form Card --}}
     <div class="bg-white rounded-[2.5rem] shadow-xl border border-gray-100 overflow-hidden">
         <div class="w-full h-2 bg-[#c65c6a]"></div>
@@ -45,6 +56,16 @@
                         <input type="text" name="phone" value="{{ old('phone', $student->phone) }}" placeholder="08xxxxxxxxxx"
                             class="w-full px-7 py-5 bg-[#fcf7f8] rounded-2xl border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none font-bold text-gray-700 transition-all shadow-sm">
                         <i class="fas fa-phone absolute right-6 top-1/2 -translate-y-1/2 text-[#c65c6a] opacity-20"></i>
+                    </div>
+                </div>
+
+                {{-- Alamat --}}
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase text-[#c65c6a] tracking-widest ml-1">Alamat Tinggal</label>
+                    <div class="relative">
+                        <textarea name="alamat" rows="3" placeholder="Masukkan alamat lengkap siswa..."
+                            class="w-full px-7 py-5 bg-[#fcf7f8] rounded-2xl border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none font-bold text-gray-700 transition-all shadow-sm resize-none">{{ old('alamat', $student->alamat) }}</textarea>
+                        <i class="fas fa-map-marker-alt absolute right-6 top-6 text-[#c65c6a] opacity-20"></i>
                     </div>
                 </div>
 

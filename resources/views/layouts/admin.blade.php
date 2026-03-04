@@ -69,7 +69,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-black tracking-tighter uppercase italic">Admin<span class="text-[#f1c6cf]"> Lyi</span></h1>
-                    <p class="text-[9px] text-white/40 uppercase tracking-[0.3em] font-bold italic">Professional Panel</p>
+                    <p class="text-[9px] text-white/40 uppercase tracking-[0.3em] font-bold italic">admin pages</p>
                 </div>
             </div>
         </div>
@@ -83,6 +83,11 @@
             <a href="{{ route('admin.dashboard') }}" class="{{ $menuClass }} {{ Request::is('admin/dashboard') ? 'menu-active' : $hover }}">
                 <i class="fas fa-th-large w-5 group-hover:rotate-6 transition-transform"></i>
                 <span class="text-xs uppercase font-black tracking-widest">Dashboard</span>
+            </a>
+
+            <a href="{{ route('admin.category.index') }}" class="{{ $menuClass }} {{ Request::is('admin/category*') ? 'menu-active' : $hover }}">
+                <i class="fas fa-tags w-5 group-hover:rotate-6 transition-transform"></i>
+                <span class="text-xs uppercase font-black tracking-widest">Kategori Buku</span>
             </a>
 
             <a href="{{ route('admin.book.index') }}" class="{{ $menuClass }} {{ Request::is('admin/book*') ? 'menu-active' : $hover }}">
@@ -100,10 +105,6 @@
                 <span class="text-xs uppercase font-black tracking-widest">Log Transaksi</span>
             </a>
 
-            <a href="{{ route('admin.category.index') }}" class="{{ $menuClass }} {{ Request::is('admin/category*') ? 'menu-active' : $hover }}">
-                <i class="fas fa-tags w-5 group-hover:rotate-6 transition-transform"></i>
-                <span class="text-xs uppercase font-black tracking-widest">Kategori Buku</span>
-            </a>
         </nav>
 
         <div class="p-8 border-t border-white/5">
@@ -144,6 +145,15 @@
                         <i class="fas fa-check text-xs"></i>
                     </div>
                     <p class="text-emerald-800 font-black text-[10px] uppercase tracking-widest">{{ session('success') }}</p>
+                </div>
+                @endif
+
+                @if(session('error'))
+                <div class="mb-8 p-5 bg-rose-50 border-l-8 border-rose-500 rounded-[2rem] flex items-center gap-4 shadow-sm">
+                    <div class="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-rose-200">
+                        <i class="fas fa-times text-xs"></i>
+                    </div>
+                    <p class="text-rose-800 font-black text-[10px] uppercase tracking-widest">{{ session('error') }}</p>
                 </div>
                 @endif
 

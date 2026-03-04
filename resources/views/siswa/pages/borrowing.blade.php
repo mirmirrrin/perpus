@@ -38,8 +38,15 @@
     {{-- Grid Buku --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
         @forelse($books as $book)
-        <div class="bg-white rounded-[3rem] p-7 shadow-sm border border-gray-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative">
+        @php
+        // Cek apakah buku ini sedang dipinjam atau pending oleh user ini
+        $userBorrowedThis = \App\Models\Transaction::where('user_id', auth()->id())
+        ->where('book_id', $book->id)
+        ->whereIn('status', ['pending', 'borrowed'])
+        ->first();
+        @endphp
 
+        <div class="bg-white rounded-[3rem] p-7 shadow-sm border border-gray-50 hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 group relative">
             {{-- Category Tag --}}
             <div class="absolute top-8 right-8 z-10">
                 <span class="bg-white/80 backdrop-blur-md text-[#c65c6a] px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest border border-gray-100 shadow-sm">
@@ -69,16 +76,18 @@
                         <span class="text-[10px] font-bold text-gray-700 italic">{{ Str::limit($book->author, 18) }}</span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Penerbit</span>
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-tight">{{ Str::limit($book->publisher ?? 'N/A', 15) }}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
                         <span class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Stok Buku</span>
                         <span class="text-[10px] font-black {{ $book->stock > 0 ? 'text-emerald-500' : 'text-rose-500' }}">{{ $book->stock }} Unit</span>
                     </div>
                 </div>
 
-                @if($book->stock > 0)
+                {{-- Logic Tombol --}}
+                @if($userBorrowedThis)
+                <div class="w-full py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] text-center border-2 border-dashed {{ $userBorrowedThis->status == 'pending' ? 'border-amber-400 text-amber-500' : 'border-emerald-400 text-emerald-500' }}">
+                    <i class="fas {{ $userBorrowedThis->status == 'pending' ? 'fa-clock' : 'fa-check-circle' }} mr-1"></i>
+                    {{ $userBorrowedThis->status == 'pending' ? 'Menunggu Konfirmasi' : 'Sedang Kamu Pinjam' }}
+                </div>
+                @elseif($book->stock > 0)
                 <form action="{{ route('siswa.borrow.request', $book->id) }}" method="POST" onsubmit="return confirm('Ajukan pinjaman untuk buku ini?')">
                     @csrf
                     <button type="submit" class="w-full bg-[#c65c6a] hover:bg-[#3a1620] text-white py-4 rounded-2xl font-black uppercase text-[9px] tracking-[0.2em] transition-all shadow-lg active:scale-95">
@@ -92,24 +101,18 @@
                 @endif
             </div>
         </div>
-
         @empty
-        {{-- Tampilan Kosong (Sama dengan Returning Style) --}}
+        {{-- Tampilan Kosong --}}
         <div class="col-span-full py-32 text-center">
             <div class="flex flex-col items-center opacity-20">
                 <i class="fas fa-search-minus text-8xl mb-6 text-gray-400"></i>
                 <p class="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">
                     @if(request('search'))
-                    Buku "{{ request('search') }}" tidak ditemukan dalam koleksi
+                    Buku "{{ request('search') }}" tidak ditemukan
                     @else
                     Koleksi buku belum tersedia saat ini
                     @endif
                 </p>
-                @if(request('search'))
-                <a href="{{ route('siswa.borrow') }}" class="mt-6 px-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all">
-                    Reset Pencarian
-                </a>
-                @endif
             </div>
         </div>
         @endforelse
