@@ -60,7 +60,7 @@
 
 <body class="flex h-screen overflow-hidden text-gray-800">
 
-    {{-- Sidebar: Tetap di kiri, tidak ikut scroll --}}
+    {{-- Sidebar --}}
     <aside class="w-80 bg-sidebar text-white hidden md:flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.1)] shrink-0 z-50 h-full">
         <div class="p-10 border-b border-white/5">
             <div class="flex items-center gap-4">
@@ -104,11 +104,10 @@
                 <i class="fas fa-exchange-alt w-5 group-hover:rotate-6 transition-transform"></i>
                 <span class="text-xs uppercase font-black tracking-widest">Log Transaksi</span>
             </a>
-
         </nav>
 
         <div class="p-8 border-t border-white/5">
-            <form action="/logout" method="POST">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button class="w-full flex items-center justify-center gap-3 py-4 rounded-[1.5rem] bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white font-black transition-all duration-500 group">
                     <i class="fas fa-power-off text-xs group-hover:rotate-90 transition-transform"></i>
@@ -121,7 +120,7 @@
     {{-- Main Wrapper --}}
     <div class="flex-1 flex flex-col h-full overflow-hidden">
 
-        {{-- Header: Tetap di atas --}}
+        {{-- Header --}}
         <header class="bg-white/70 backdrop-blur-xl shrink-0 z-40 px-10 py-6 border-b border-gray-50 flex items-center justify-between">
             <h2 class="text-sm font-black text-gray-400 uppercase tracking-[0.4em]">
                 System / <span class="text-gray-800">@yield('title')</span>
@@ -136,9 +135,10 @@
             </div>
         </header>
 
-        {{-- Scrollable Content: Area yang bisa di-scroll --}}
+        {{-- Scrollable Content --}}
         <main class="flex-1 overflow-y-auto custom-scrollbar bg-[#fdfafb] p-12">
-            <div class="fade-in max-w-7xl mx-auto pb-20"> {{-- pb-20 biar gak mentok bawah --}}
+            <div class="fade-in max-w-7xl mx-auto pb-20">
+                {{-- Alert Messages --}}
                 @if(session('success'))
                 <div class="mb-8 p-5 bg-emerald-50 border-l-8 border-emerald-500 rounded-[2rem] flex items-center gap-4 shadow-sm">
                     <div class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-200">

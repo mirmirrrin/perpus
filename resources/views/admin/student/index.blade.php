@@ -16,7 +16,7 @@
 
         <div class="flex flex-col md:flex-row items-center gap-5 w-full lg:w-auto">
             {{-- Search Bar --}}
-            <form action="{{ route('admin.transaction.index') }}" method="GET" class="relative group w-full md:w-80" id="searchForm">
+            <form action="{{ route('admin.student.index') }}" method="GET" class="relative group w-full md:w-80" id="searchForm">
                 <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Cari nama atau email..."
                     class="w-full pl-12 pr-12 py-4 rounded-2xl bg-[#fcf7f8] border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none text-sm font-bold transition-all shadow-inner">
 
@@ -27,7 +27,7 @@
 
                 {{-- Tombol X (Kanan) --}}
                 @if(request('search'))
-                <a href="{{ route('admin.transaction.index') }}"
+                <a href="{{ route('admin.student.index') }}"
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#c65c6a] transition-colors">
                     <i class="fas fa-times-circle"></i>
                 </a>
@@ -69,7 +69,6 @@
                         {{-- Nama --}}
                         <td class="px-10 py-6">
                             <div class="flex items-center gap-4 group">
-                                {{-- FOTO PROFIL BULAT --}}
                                 <div class="relative flex-shrink-0">
                                     @if($student->avatar)
                                     <img src="{{ asset('storage/avatars/' . $student->avatar) }}"
@@ -78,12 +77,8 @@
                                     <img src="https://ui-avatars.com/api/?name={{ urlencode($student->name) }}&background=fdf2f3&color=c65c6a&bold=true"
                                         class="w-12 h-12 rounded-full border-2 border-gray-50 object-cover shadow-sm group-hover:scale-110 transition-transform duration-500">
                                     @endif
-
-                                    {{-- Indikator titik kecil (opsional, biar makin cakep) --}}
-                                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white rounded-full"></div>
                                 </div>
 
-                                {{-- INFO NAMA & ALAMAT --}}
                                 <div class="flex flex-col">
                                     <span class="text-sm font-black text-gray-800 tracking-tight group-hover:text-[#c65c6a] transition-colors italic leading-none mb-1">
                                         {{ $student->name }}
@@ -97,7 +92,7 @@
                             <p class="text-sm text-gray-500 font-bold italic opacity-70">{{ $student->email }}</p>
                         </td>
 
-                        {{-- KONTAK (NOMOR TELEPON SAJA) --}}
+                        {{-- Kontak --}}
                         <td class="px-10 py-6">
                             <div class="flex flex-col">
                                 <span class="text-sm font-black text-gray-700 tracking-tight italic">
@@ -109,8 +104,9 @@
                             </div>
                         </td>
 
+                        {{-- Alamat --}}
                         <td class="px-10 py-6">
-                            <div class="max-w-[150px]"> {{-- Batasi lebar maksimalnya --}}
+                            <div class="max-w-[150px]">
                                 <p class="text-[10px] font-bold text-gray-500 italic truncate" title="{{ $student->alamat }}">
                                     {{ $student->alamat ?? '-' }}
                                 </p>
@@ -136,7 +132,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-32 text-center">
+                        <td colspan="6" class="py-32 text-center">
                             <div class="opacity-20 flex flex-col items-center">
                                 <i class="fas fa-users-slash text-7xl mb-6 text-gray-300"></i>
                                 <p class="text-[11px] font-black uppercase tracking-[0.4em]">Siswa Tidak Ditemukan</p>

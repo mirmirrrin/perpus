@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class CategoryController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar kategori dengan fitur pencarian
      */
     public function index(Request $request)
     {
@@ -16,13 +16,15 @@ class CategoryController extends Controller
 
         $categories = Category::when($search, function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%");
-        })->latest()->get();
+        })
+            ->latest()
+            ->get();
 
         return view('admin.category.index', compact('categories'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Form tambah kategori baru
      */
     public function create()
     {
@@ -30,51 +32,38 @@ class CategoryController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Simpan kategori baru ke database
      */
     public function store(Request $request)
     {
-        $request->validate(['name' => 'required|string|max:255|unique:categories,name']);
+        $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name'
+        ]);
+
         Category::create($request->all());
 
         return redirect()->route('admin.category.index')->with('success', 'Kategori baru berhasil ditambahkan!');
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
-        ]);
-
-        Category::create([
-            'name' => $request->name
-        ]);
-
-        return redirect()->route('admin.category.index')->with('success', 'Kategori baru berhasil ditambahkan!');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
+     * Form edit kategori
      */
     public function edit($id)
     {
-        $category = \App\Models\Category::findOrFail($id);
+        $category = Category::findOrFail($id);
         return view('admin.category.edit', compact('category'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update data kategori
      */
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:categories,name,' . $id,
         ]);
 
-        $category = \App\Models\Category::findOrFail($id);
+        $category = Category::findOrFail($id);
         $category->update([
             'name' => $request->name,
         ]);
@@ -83,15 +72,18 @@ class CategoryController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus kategori
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
+        $category = Category::findOrFail($id);
+
+        // Cek apakah ada buku yang pakai kategori ini sebelum dihapus
         if ($category->books()->count() > 0) {
             return back()->with('error', 'Kategori tidak bisa dihapus karena masih ada buku di dalamnya!');
         }
 
         $category->delete();
-        return back()->with('error', 'Kategori berhasil dihapus!');
+        return redirect()->route('admin.category.index')->with('error', 'Kategori berhasil dihapus!');
     }
 }

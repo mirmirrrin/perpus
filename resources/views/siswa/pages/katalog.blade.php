@@ -13,7 +13,7 @@
         <div class="bg-white p-5 rounded-[3rem] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-700 group">
             <div class="h-80 bg-[#fdf6f7] rounded-[2.5rem] mb-6 overflow-hidden relative shadow-inner">
                 @if($book->image)
-                <img src="{{ asset('storage/' . $book->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <img src="{{ asset('storage/' . $book->image) }}" class="w-full h-full object-cover">
                 @else
                 <div class="w-full h-full flex items-center justify-center bg-gray-50">
                     <i class="fas fa-book text-6xl text-[#c65c6a]/10"></i>

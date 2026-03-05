@@ -10,6 +10,12 @@ use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN SIDE: Monitoring & CRUD
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         $search = $request->search;
@@ -32,7 +38,7 @@ class TransactionController extends Controller
 
     public function create()
     {
-        $books = Book::all();
+        $books = Book::where('stock', '>', 0)->get(); // Hanya buku yang ada stoknya
         $students = User::where('role', 'siswa')->get();
         return view('admin.transaction.create', compact('books', 'students'));
     }
@@ -46,14 +52,11 @@ class TransactionController extends Controller
             'returned_at'  => 'required|date|after_or_equal:borrowed_at',
         ]);
 
-        // Cari Siswa berdasarkan nama
         $user = User::where('name', $request->student_name)->first();
-        if (!$user) return back()->with('error', 'Siswa tidak ditemukan!');
-
-        // Cari Buku berdasarkan nama
         $book = Book::where('name', $request->book_name)->first();
-        if (!$book) return back()->with('error', 'Buku tidak ditemukan!');
 
+        if (!$user) return back()->with('error', 'Siswa tidak ditemukan!');
+        if (!$book) return back()->with('error', 'Buku tidak ditemukan!');
         if ($book->stock <= 0) return back()->with('error', 'Stok buku habis!');
 
         Transaction::create([
@@ -61,7 +64,7 @@ class TransactionController extends Controller
             'book_id'     => $book->id,
             'borrowed_at' => $request->borrowed_at,
             'returned_at' => $request->returned_at,
-            'status'      => 'borrowed', // Manual oleh admin langsung 'borrowed'
+            'status'      => 'borrowed',
         ]);
 
         $book->decrement('stock');
@@ -77,7 +80,6 @@ class TransactionController extends Controller
     public function update(Request $request, $id)
     {
         $transaction = Transaction::findOrFail($id);
-
         $request->validate([
             'borrowed_at' => 'required|date',
             'returned_at' => 'required|date',
@@ -86,141 +88,108 @@ class TransactionController extends Controller
 
         $oldStatus = $transaction->status;
 
-        // Update data (User & Book tidak diubah karena dari form edit hanya tampilan)
         $transaction->update([
             'borrowed_at' => $request->borrowed_at,
             'returned_at' => $request->returned_at,
             'status'      => $request->status,
         ]);
 
-        // LOGIKA STOK OTOMATIS
-        // 1. Jika status berubah dari 'dipinjam' menjadi 'kembali'
+        // Logika Stok Otomatis
         if ($oldStatus === 'borrowed' && $request->status === 'returned') {
             $transaction->book->increment('stock');
-        }
-        // 2. Jika status berubah dari 'kembali' ke 'dipinjam' lagi (salah input)
-        elseif ($oldStatus === 'returned' && $request->status === 'borrowed') {
+        } elseif ($oldStatus === 'returned' && $request->status === 'borrowed') {
             $transaction->book->decrement('stock');
         }
 
-        return redirect()->route('admin.transaction.index')->with('success', 'Transaksi berhasil diupdate!');
+        return redirect()->route('admin.transaction.index')->with('success', 'Transaksi diupdate!');
     }
 
     public function destroy($id)
     {
         $transaction = Transaction::findOrFail($id);
-
-        // Kembalikan stok jika data yang dihapus statusnya masih 'borrowed'
         if ($transaction->status === 'borrowed') {
             $transaction->book->increment('stock');
         }
-
         $transaction->delete();
-        return redirect()->route('admin.transaction.index')->with('error', 'Data transaksi berhasil dihapus!');
+        return redirect()->route('admin.transaction.index')->with('error', 'Transaksi dihapus!');
     }
 
-    // FUNGSI UNTUK SISWA REQUEST PINJAM
-    // FUNGSI UNTUK SISWA REQUEST PINJAM
-    public function pinjamBuku(Request $request, $id)
-    {
-        $book = Book::findOrFail($id);
-        $userId = auth()->id();
-
-        // LOGIKA CEK DUPLIKAT:
-        // Cek apakah user sudah pinjam buku yang SAMA dan belum dibalikin (status pending atau borrowed)
-        $alreadyBorrowed = Transaction::where('user_id', $userId)
-            ->where('book_id', $id)
-            ->whereIn('status', ['pending', 'borrowed'])
-            ->exists();
-
-        if ($alreadyBorrowed) {
-            return redirect()->back()->with('error', 'Kamu sudah meminjam buku ini atau sedang menunggu konfirmasi!');
-        }
-
-        // Cek stok
-        if ($book->stock <= 0) {
-            return redirect()->back()->with('error', 'Maaf, stok buku sedang habis!');
-        }
-
-        Transaction::create([
-            'user_id'     => $userId,
-            'book_id'     => $id,
-            'borrowed_at' => now(),
-            'returned_at' => now()->addDays(7), // Default tenggat 7 hari
-            'status'      => 'pending',
-        ]);
-
-        return redirect()->route('siswa.borrow')->with('success', 'Permintaan terkirim! Menunggu konfirmasi admin.');
-    }
-
-    public function returnBook($id)
-    {
-        $transaction = Transaction::findOrFail($id);
-
-        // Cek dulu, kalau statusnya bukan 'borrowed', jangan diapa-apain
-        if ($transaction->status !== 'borrowed') {
-            return redirect()->back()->with('error', 'Transaksi tidak valid untuk pengembalian.');
-        }
-
-        // 1. Update status jadi 'returned'
-        // 2. Isi tanggal pengembalian aslinya (optional kalau ada kolomnya)
-        $transaction->update([
-            'status' => 'returned',
-            'actual_return_date' => now()
-        ]);
-
-        // 3. Tambah stok buku lagi karena sudah dibalikin
-        $transaction->book->increment('stock');
-
-        return redirect()->route('siswa.return')->with('success', 'Buku berhasil dikembalikan! Terima kasih.');
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | ADMIN SIDE: Approval (Persetujuan Pinjam)
+    |--------------------------------------------------------------------------
+    */
 
     public function approve($id)
     {
         $transaction = Transaction::findOrFail($id);
 
-        if ($transaction->status !== 'pending') {
-            return redirect()->back()->with('error', 'Gagal menyetujui.');
-        }
+        if ($transaction->status !== 'pending') return back()->with('error', 'Gagal menyetujui.');
+        if ($transaction->book->stock <= 0) return back()->with('error', 'Stok buku habis!');
 
-        // Pastikan stok masih ada
-        if ($transaction->book->stock <= 0) {
-            return redirect()->back()->with('error', 'Stok buku habis!');
-        }
-
-        $transaction->status = 'borrowed';
-        $transaction->save();
-
+        $transaction->update(['status' => 'borrowed']);
         $transaction->book->decrement('stock');
 
-        return redirect()->back()->with('success', 'Peminjaman oleh ' . $transaction->user->name . ' telah DISETUJUI!');
+        return redirect()->back()->with('success', 'Peminjaman disetujui!');
     }
 
     public function reject(Request $request, $id)
     {
         $transaction = Transaction::findOrFail($id);
-
-        // Pastikan hanya bisa reject kalau masih pending
-        if ($transaction->status !== 'pending') {
-            return redirect()->back()->with('error', 'Gagal, Status transaksi bukan pending.');
-        }
-
-        // Validasi alasan wajib diisi
-        $request->validate([
-            'rejection_reason_manual' => 'nullable|string',
-            'rejection_reason_select' => 'nullable|string',
-        ]);
+        if ($transaction->status !== 'pending') return back()->with('error', 'Bukan status pending.');
 
         $reason = $request->rejection_reason_manual ?: $request->rejection_reason_select;
+        if (!$reason) return redirect()->back()->with('error', 'Isi alasannya dulu!');
 
-        if (!$reason) {
-            return redirect()->back()->with('error', 'Pilih atau isi alasannya dahulu!');
-        }
+        $transaction->update([
+            'status' => 'rejected',
+            'rejection_reason' => $reason
+        ]);
 
-        $transaction->status = 'rejected';
-        $transaction->rejection_reason = $reason;
-        $transaction->save();
+        return redirect()->back()->with('success', 'Peminjaman ditolak.');
+    }
 
-        return redirect()->back()->with('success', 'Peminjaman ' . $transaction->user->name . ' telah DITOLAK dengan alasan: ' . $reason);
+    /*
+    |--------------------------------------------------------------------------
+    | SISWA SIDE: Pinjam & Kembalikan
+    |--------------------------------------------------------------------------
+    */
+
+    public function pinjamBuku($id)
+    {
+        $book = Book::findOrFail($id);
+        $userId = auth()->id();
+
+        $alreadyBorrowed = Transaction::where('user_id', $userId)
+            ->where('book_id', $id)
+            ->whereIn('status', ['pending', 'borrowed'])
+            ->exists();
+
+        if ($alreadyBorrowed) return back()->with('error', 'Kamu sudah pinjam/request buku ini!');
+        if ($book->stock <= 0) return back()->with('error', 'Stok habis!');
+
+        Transaction::create([
+            'user_id'     => $userId,
+            'book_id'     => $id,
+            'borrowed_at' => now(),
+            'returned_at' => now()->addDays(7),
+            'status'      => 'pending',
+        ]);
+
+        return redirect()->back()->with('success', 'Permintaan terkirim!');
+    }
+
+    public function returnBook($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        if ($transaction->status !== 'borrowed') return back()->with('error', 'Status tidak valid.');
+
+        $transaction->update([
+            'status' => 'returned',
+            'actual_return_date' => now()
+        ]);
+        $transaction->book->increment('stock');
+
+        return redirect()->back()->with('success', 'Buku dikembalikan!');
     }
 }

@@ -92,7 +92,7 @@
                 @endif
 
                 <div class="truncate">
-                    <p class="text-[8px] font-black uppercase opacity-40 tracking-widest italic group-hover:text-white transition-colors">Edit Profile</p>
+                    <p class="text-[8px] font-black uppercase opacity-40 tracking-widest italic group-hover:text-white transition-colors">Profile Account</p>
                     <p class="text-xs font-black truncate tracking-tight group-hover:underline">{{ Auth::user()->name }}</p>
                 </div>
             </a>

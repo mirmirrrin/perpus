@@ -47,6 +47,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#fcf7f8]/50 border-b border-gray-50">
+                        <th class="px-6 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Sampul</th>
                         <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Judul Buku</th>
                         <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Kategori</th>
                         <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Penulis</th>
@@ -57,7 +58,21 @@
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @forelse($books as $book)
-                    <tr class="bg-white hover:bg-gray-50 hover:shadow-xl hover:shadow-gray-100 hover:scale-[1.01] transition-all duration-300 group cursor-default">
+                    <tr class="bg-white hover:bg-gray-50 transition-all duration-300 group">
+                        {{-- Sampul --}}
+                        <td class="px-8 py-6">
+                            <div class="w-16 h-20 mx-auto rounded-2xl overflow-hidden shadow-sm border-2 border-[#fcf7f8] group-hover:scale-110 transition-transform duration-500 bg-[#fcf7f8] flex items-center justify-center">
+                                @if($book->image)
+                                <img src="{{ asset('storage/books/' . $book->image) }}" class="w-full h-full object-cover">
+                                @else
+                                <div class="flex flex-col items-center gap-1 opacity-30">
+                                    <i class="fas fa-book-open text-[#c65c6a] text-xl"></i>
+                                    <span class="text-[6px] font-black uppercase text-[#c65c6a]">No Cover</span>
+                                </div>
+                                @endif
+                            </div>
+                        </td>
+
                         {{-- Judul --}}
                         <td class="px-8 py-6">
                             <span class="text-sm font-black text-gray-800 font black tracking-tight group-hover:text-[#c65c6a] transition-colors">
