@@ -19,19 +19,26 @@
         </div>
     </header>
 
-    {{-- Search Bar --}}
-    <div class="mb-12">
-        <form action="{{ route('siswa.return') }}" method="GET" class="relative max-w-xl">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari buku yang ingin dikembalikan..."
-                class="w-full pl-14 pr-14 py-5 rounded-[2.2rem] bg-white border-none shadow-sm focus:ring-2 focus:ring-[#c65c6a] transition-all font-bold text-sm text-gray-700">
-            <div class="absolute left-6 top-1/2 -translate-y-1/2 text-[#c65c6a]">
-                <i class="fas fa-search text-lg"></i>
+    {{-- Search --}}
+    <div class="mb-16 flex justify-center">
+        <form action="{{ route('siswa.borrow') }}" method="GET" class="relative w-full max-w-2xl group">
+
+            <input type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari judul, penulis, atau penerbit..."
+                class="w-full pl-16 pr-16 py-6 rounded-[2.5rem] bg-white border-2 border-transparent shadow-lg focus:border-[#c65c6a] focus:ring-0 font-bold text-base text-gray-700 placeholder:text-gray-300">
+
+            <div class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#c65c6a]">
+                <i class="fas fa-search text-xl"></i>
             </div>
+
             @if(request('search'))
-            <a href="{{ route('siswa.return') }}" class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-rose-500">
-                <i class="fas fa-times-circle"></i>
+            <a href="{{ route('siswa.borrow') }}" class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-500">
+                <i class="fas fa-times-circle text-xl"></i>
             </a>
             @endif
+
         </form>
     </div>
 

@@ -55,6 +55,23 @@
                 </div>
             </div>
 
+            <div class="mb-5">
+                <label class="block text-xs font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Tahun Terbit</label>
+                <input type="number" name="year"
+                    value="{{ old('year', $book->year ?? '') }}"
+                    placeholder="Contoh: 2024"
+                    class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-[#c65c6a] focus:ring-0 transition-all font-bold text-gray-700">
+                @error('year') <p class="text-rose-500 text-[10px] mt-2 font-bold uppercase">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="mb-5">
+                <label class="block text-xs font-black uppercase tracking-[0.2em] text-gray-500 mb-2">Sinopsis Buku</label>
+                <textarea name="description" rows="5"
+                    placeholder="Tuliskan ringkasan buku di sini..."
+                    class="w-full px-5 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 focus:bg-white focus:border-[#c65c6a] focus:ring-0 transition-all font-bold text-gray-700 leading-relaxed">{{ old('description', $book->description ?? '') }}</textarea>
+                @error('description') <p class="text-rose-500 text-[10px] mt-2 font-bold uppercase">{{ $message }}</p> @enderror
+            </div>
+
             <button type="submit" class="w-full bg-[#c65c6a] hover:bg-gray-800 text-white py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] shadow-xl shadow-[#c65c6a]/20 transition-all active:scale-95 flex items-center justify-center gap-3">
                 <i class="fas fa-save"></i> Simpan Koleksi Buku
             </button>

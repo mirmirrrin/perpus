@@ -51,7 +51,7 @@ class StudentDashboardController extends Controller
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            'username' => $request->email, // Menggunakan email sebagai username
+            'username' => $request->email,
             'password' => Hash::make($request->password),
             'role'     => 'siswa',
             'phone'    => $request->phone,
@@ -126,6 +126,21 @@ class StudentDashboardController extends Controller
             ->get();
 
         return view('siswa.pages.borrowing', compact('books'));
+    }
+
+    // --- FUNGSI DETAIL YANG BARU TARUH DI SINI ---
+    public function showBookDetail($id)
+    {
+        // Mengambil buku beserta kategorinya berdasarkan ID
+        $book = \App\Models\Book::with('category')->findOrFail($id);
+
+        // Mengambil status apakah user sedang meminjam buku ini
+        $userBorrowedThis = \App\Models\Transaction::where('user_id', auth()->id())
+            ->where('book_id', $book->id)
+            ->whereIn('status', ['pending', 'borrowed'])
+            ->first();
+
+        return view('siswa.show', compact('book', 'userBorrowedThis'));
     }
 
     public function returning(Request $request)

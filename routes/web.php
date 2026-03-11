@@ -51,12 +51,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/transaction/{id}/reject', [TransactionController::class, 'reject'])->name('transaction.reject');
     });
 
-    // --- SISWA AREA ---
+    // --- User AREA ---
+
     Route::prefix('siswa')->name('siswa.')->group(function () {
 
         Route::controller(StudentDashboardController::class)->group(function () {
+
             Route::get('/dashboard', 'dashboardSiswa')->name('dashboard');
             Route::get('/borrow', 'borrowing')->name('borrow');
+
+            // ROUTE DETAIL BUKU
+            Route::get('/book/{id}', 'showBookDetail')->name('book.show');
+
             Route::get('/return', 'returning')->name('return');
         });
 
@@ -65,8 +71,16 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/return-action/{id}', 'returnBook')->name('return.proses');
         });
 
-        // Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+
+        Route::post('/notif-dismiss', function () {
+            \App\Models\Transaction::where('user_id', auth()->id())
+                ->whereIn('status', ['borrowed', 'rejected'])
+                ->where('updated_at', '>=', now()->subHours(24))
+                ->update(['updated_at' => now()->subDays(2)]); // Memundurkan waktu agar hilang dari filter
+
+            return back();
+        })->name('notif.dismiss');
     });
 });

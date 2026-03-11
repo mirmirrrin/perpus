@@ -11,56 +11,66 @@
         transform: translateY(-8px);
         box-shadow: 0 25px 50px -12px rgba(116, 53, 68, 0.15);
     }
+
+    .maroon-gradient {
+        background: linear-gradient(135deg, #743544 0%, #c65c6a 100%);
+    }
 </style>
 
 <div class="max-w-7xl mx-auto">
-
-    {{-- ALERT NOTIFIKASI SISWA: STATUS TERBARU --}}
+    {{-- 1. LOGIKA NOTIFIKASI --}}
     @php
-    $hasUpdate = \App\Models\Transaction::where('user_id', auth()->id())
-    ->whereIn('status', ['borrowed', 'rejected', 'returned'])
+    $latestUpdates = \App\Models\Transaction::with('book')
+    ->where('user_id', auth()->id())
+    ->whereIn('status', ['borrowed','rejected'])
     ->where('updated_at', '>=', now()->subHours(24))
-    ->exists();
+    ->latest('updated_at')
+    ->get();
     @endphp
 
-    @if($hasUpdate)
-    {{-- Tambahkan id="global-alert" supaya bisa dipanggil sama JavaScript --}}
-    <div id="global-alert" style="display: none;" class="mb-8 p-6 bg-gradient-to-r from-[#743544] to-[#c65c6a] rounded-[2.5rem] text-white shadow-xl shadow-[#743544]/20 flex items-center justify-between group relative transition-all duration-500 overflow-hidden">
-        <div class="flex items-center gap-5">
-            <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center border border-white/30">
-                <i class="fas fa-info-circle text-lg"></i>
+    {{-- 2. TAMPILAN ALERT --}}
+    @if($latestUpdates->count() > 0)
+    {{-- Kita pakai Alpine.js supaya pas diklik langsung hilang (animasi) baru proses database --}}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <div x-data="{ open: true }"
+        x-show="open"
+        x-transition:leave="transition ease-in duration-300"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95"
+        class="mb-8 flex items-center justify-between bg-white p-4 px-8 rounded-[2rem] shadow-sm border border-gray-50 group hover:border-[#c65c6a]/20 transition-all duration-500">
+
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-[#fcf7f8] rounded-2xl flex items-center justify-center text-[#c65c6a] relative">
+                <i class="fas fa-bell text-sm"></i>
+                <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500 border-2 border-white"></span>
+                </span>
             </div>
+
             <div>
-                <p class="text-[9px] font-black uppercase tracking-[0.2em] opacity-80 italic">Pemberitahuan Sistem</p>
-                <h4 class="font-bold text-sm tracking-tight">
-                    Status peminjaman buku Anda telah diperbarui oleh Admin!
-                </h4>
-                <p class="text-[10px] opacity-60 font-medium">Silakan cek detail status pada tabel di bawah ini.</p>
+                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-0.5">Notifikasi Terbaru</p>
+                <p class="text-xs font-bold text-gray-700">
+                    Ada <span class="text-[#c65c6a]">{{ $latestUpdates->count() }}</span> pembaruan status buku yang perlu kamu cek.
+                </p>
             </div>
         </div>
 
-        {{-- Tombol Silang (Close) --}}
-        <button onclick="closeAlert()" class="w-10 h-10 rounded-2xl bg-black/10 hover:bg-white/20 flex items-center justify-center transition-all border border-white/10 group-hover:rotate-90">
-            <i class="fas fa-times text-xs"></i>
-        </button>
+        <div class="flex items-center gap-6">
+            <a href="#riwayat" class="text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-[#c65c6a] transition-colors">
+                Lihat Riwayat
+            </a>
 
-        {{-- Efek Dekorasi biar makin cakep --}}
-        <div class="absolute -right-4 -top-4 w-12 h-12 bg-white opacity-5 rounded-full"></div>
+            {{-- Form Dismiss dengan Route yang Benar --}}
+            <form action="{{ route('siswa.notif.dismiss') }}" method="POST" class="inline">
+                @csrf
+                <button @click="open = false" type="submit" class="text-gray-400 hover:text-rose-500 transition-colors p-1 cursor-pointer outline-none">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </form>
+        </div>
     </div>
-
-    <script>
-        function closeAlert() {
-            const alertBox = document.getElementById('global-alert');
-            // Kasih efek transisi sedikit pas hilang
-            alertBox.style.opacity = '0';
-            alertBox.style.transform = 'translateY(-20px)';
-
-            // Setelah animasi selesai, baru bener-bener dihapus dari tampilan
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 500);
-        }
-    </script>
     @endif
 
     {{-- Hero Greeting --}}
@@ -72,7 +82,6 @@
                 <p class="text-red-50 text-lg font-medium opacity-90 max-w-lg leading-relaxed">Mau baca apa hari ini? Jelajahi koleksi buku dan kelola pinjamanmu dengan mudah.</p>
             </div>
 
-            {{-- Real-time Clock Siswa --}}
             <div class="bg-white/10 backdrop-blur-md border border-white/20 p-8 rounded-[3rem] text-center min-w-[250px]">
                 <h3 id="siswa-clock" class="text-5xl font-black tracking-tighter mb-1">00:00</h3>
                 <p id="siswa-date" class="text-[10px] font-black uppercase tracking-[0.3em] opacity-70"></p>
@@ -106,8 +115,8 @@
         </div>
     </div>
 
-    {{-- Recent Requests Table/List --}}
-    <div class="mb-6 flex justify-between items-center">
+    {{-- Recent Requests (Riwayat) --}}
+    <div id="riwayat" class="mb-6 flex justify-between items-center">
         <h3 class="text-xl font-black text-gray-800 uppercase tracking-tighter">Status Permintaan <span class="text-[#c65c6a]">Terbaru</span></h3>
     </div>
 
@@ -156,12 +165,10 @@
     function updateSiswaClock() {
         const now = new Date();
         const options = {
-            weekday: 'short',
             day: 'numeric',
             month: 'short',
             year: 'numeric'
         };
-
         document.getElementById('siswa-date').innerText = now.toLocaleDateString('id-ID', options);
         document.getElementById('siswa-clock').innerText = now.toLocaleTimeString('id-ID', {
             hour: '2-digit',

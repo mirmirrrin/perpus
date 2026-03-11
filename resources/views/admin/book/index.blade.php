@@ -16,7 +16,7 @@
 
         <div class="flex flex-col md:flex-row items-center gap-5 w-full lg:w-auto">
             {{-- Form Search --}}
-            <form action="{{ route('admin.transaction.index') }}" method="GET" class="relative group w-full md:w-80" id="searchForm">
+            <form action="{{ route('admin.book.index') }}" method="GET" class="relative group w-full md:w-80" id="searchForm">
                 <input type="text" name="search" id="searchInput" value="{{ request('search') }}" placeholder="Cari data buku..."
                     class="w-full pl-12 pr-12 py-4 rounded-2xl bg-[#fcf7f8] border-2 border-transparent focus:border-[#c65c6a] focus:bg-white focus:outline-none text-sm font-bold transition-all shadow-inner">
 
@@ -27,7 +27,7 @@
 
                 {{-- Tombol X (Kanan) --}}
                 @if(request('search'))
-                <a href="{{ route('admin.transaction.index') }}"
+                <a href="{{ route('admin.book.index') }}"
                     class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#c65c6a] transition-colors">
                     <i class="fas fa-times-circle"></i>
                 </a>

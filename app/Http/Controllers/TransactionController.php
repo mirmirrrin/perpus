@@ -186,7 +186,7 @@ class TransactionController extends Controller
 
         $transaction->update([
             'status' => 'returned',
-            'actual_return_date' => now()
+            'returned_at' => now()
         ]);
         $transaction->book->increment('stock');
 
