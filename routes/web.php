@@ -10,6 +10,9 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\StudentDashboardController;
 use App\Http\Controllers\Siswa\ProfileController;
 
+// 1. KUNCI PERBAIKAN: Definisikan lokasi file middleware di sini (agar tidak perlu lewat Kernel)
+$roleMiddleware = \App\Http\Middleware\RoleManager::class;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,17 +36,19 @@ Route::controller(RegisterController::class)->group(function () {
 });
 
 // PROTECTED ROUTES (MUST LOGIN)
-Route::middleware(['auth'])->group(function () {
+// 2. Tambahkan 'use ($roleMiddleware)' supaya variabel di atas bisa masuk ke dalam grup
+Route::middleware(['auth'])->group(function () use ($roleMiddleware) {
 
     // --- ADMIN AREA ---
-    Route::prefix('admin')->name('admin.')->group(function () {
+    // 3. Ganti 'role:admin' menjadi $roleMiddleware . ':admin'
+    Route::prefix('admin')->name('admin.')->middleware($roleMiddleware . ':admin')->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         // Master Data
         Route::resource('book', BookController::class);
         Route::resource('category', CategoryController::class);
-        Route::resource('student', StudentDashboardController::class); // Ini yang isinya gado-gado tadi
+        Route::resource('student', StudentDashboardController::class);
 
         // Transactional
         Route::resource('transaction', TransactionController::class);
@@ -51,18 +56,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/transaction/{id}/reject', [TransactionController::class, 'reject'])->name('transaction.reject');
     });
 
-    // --- User AREA ---
-
-    Route::prefix('siswa')->name('siswa.')->group(function () {
+    // --- SISWA AREA ---
+    // 4. Ganti 'role:siswa' menjadi $roleMiddleware . ':siswa'
+    Route::prefix('siswa')->name('siswa.')->middleware($roleMiddleware . ':siswa')->group(function () {
 
         Route::controller(StudentDashboardController::class)->group(function () {
-
             Route::get('/dashboard', 'dashboardSiswa')->name('dashboard');
             Route::get('/borrow', 'borrowing')->name('borrow');
-
-            // ROUTE DETAIL BUKU
             Route::get('/book/{id}', 'showBookDetail')->name('book.show');
-
             Route::get('/return', 'returning')->name('return');
         });
 
@@ -78,7 +79,7 @@ Route::middleware(['auth'])->group(function () {
             \App\Models\Transaction::where('user_id', auth()->id())
                 ->whereIn('status', ['borrowed', 'rejected'])
                 ->where('updated_at', '>=', now()->subHours(24))
-                ->update(['updated_at' => now()->subDays(2)]); // Memundurkan waktu agar hilang dari filter
+                ->update(['updated_at' => now()->subDays(2)]);
 
             return back();
         })->name('notif.dismiss');

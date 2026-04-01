@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
     {{-- Header Section --}}
     <div class="bg-white rounded-[2.5rem] p-10 shadow-sm mb-10 border-b-8 border-[#c65c6a] flex flex-col lg:flex-row justify-between items-center gap-8 transition-all hover:shadow-md">
         <div>

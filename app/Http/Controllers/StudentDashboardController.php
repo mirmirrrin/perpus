@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class StudentDashboardController extends Controller
 {
@@ -88,8 +89,25 @@ class StudentDashboardController extends Controller
 
     public function destroy($id)
     {
-        User::where('role', 'siswa')->findOrFail($id)->delete();
-        return redirect()->route('admin.student.index')->with('error', 'Data siswa berhasil dihapus!');
+        $student = User::where('role', 'siswa')->findOrFail($id);
+
+        // LOGIKA PROTEKSI: Cek apakah ada pinjaman aktif (status borrowed)
+        $hasActiveLoan = Transaction::where('user_id', $id)
+            ->where('status', 'borrowed')
+            ->exists();
+
+        if ($hasActiveLoan) {
+            return redirect()->route('admin.student.index')
+                ->with('error', 'Gagal! Siswa ini masih memiliki pinjaman buku yang belum dikembalikan.');
+        }
+
+        // Hapus foto profil dari storage jika ada
+        if ($student->avatar) {
+            Storage::delete('public/avatars/' . $student->avatar);
+        }
+
+        $student->delete();
+        return redirect()->route('admin.student.index')->with('success', 'Data siswa berhasil dihapus!');
     }
 
     /*

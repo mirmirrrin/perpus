@@ -56,7 +56,7 @@
                         <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-gray-50">     
                     @forelse($books as $book)
                     <tr class="bg-white hover:bg-gray-50 transition-all duration-300 group">
                         {{-- Sampul --}}
@@ -82,9 +82,11 @@
 
                         {{-- Kategori --}}
                         <td class="px-8 py-6">
-                            <span class="px-4 py-1.5 bg-[#fdf2f3] text-[#c65c6a] text-[9px] font-black uppercase rounded-lg border border-[#f5e1e4]">
-                                {{ $book->category->name ?? 'Umum' }}
-                            </span>
+                            <div class="flex justify-center"> {{-- Pembungkus agar span berada di tengah kolom --}}
+                                <span class="inline-flex items-center justify-center px-4 py-1.5 bg-[#fdf2f3] text-[#c65c6a] text-[9px] font-black uppercase rounded-lg border border-[#f5e1e4] whitespace-nowrap leading-none">
+                                    {{ $book->category->name ?? 'Umum' }}
+                                </span>
+                            </div>
                         </td>
 
                         {{-- Penulis --}}

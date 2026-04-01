@@ -134,13 +134,26 @@ class BookController extends Controller
     {
         $book = Book::findOrFail($id);
 
-        // Hapus file gambar dari storage sebelum datanya dihapus
+        // 1. Cek apakah ada transaksi buku ini yang statusnya masih 'borrowed' (dipinjam)
+        // Diasumsikan nama model transaksi kamu adalah 'Transaction'
+        $isStillBorrowed = \App\Models\Transaction::where('book_id', $id)
+            ->where('status', 'borrowed')
+            ->exists();
+
+        if ($isStillBorrowed) {
+            // Jika masih ada yang pinjam, gagalkan penghapusan dan kirim pesan error
+            return redirect()->route('admin.book.index')
+                ->with('error', 'Gagal menghapus! Buku ini masih dalam status dipinjam oleh siswa.');
+        }
+
+        // 2. Jika aman (tidak ada yang pinjam), baru hapus gambar dan datanya
         if ($book->image) {
             Storage::delete('public/books/' . $book->image);
         }
 
         $book->delete();
 
-        return redirect()->route('admin.book.index')->with('error', 'Buku berhasil dihapus dari sistem!');
+        return redirect()->route('admin.book.index')
+            ->with('error', 'Buku berhasil dihapus dari sistem!');
     }
 }

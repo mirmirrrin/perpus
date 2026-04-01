@@ -34,7 +34,7 @@
 
                         <label class="absolute bottom-0 right-0 bg-[#c65c6a] text-white w-10 h-10 rounded-full border-2 border-white flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg">
                             <i class="fas fa-camera text-xs"></i>
-                            <input type="file" name="avatar" class="hidden" onchange="this.form.submit()">
+                            <input type="file" name="avatar" id="avatarInput" class="hidden">
                         </label>
                     </div>
                 </div>
