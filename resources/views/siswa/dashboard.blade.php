@@ -185,7 +185,7 @@
                         @if ($req->status == 'borrowed')
                             <p class="text-[9px] text-emerald-500 font-black italic uppercase tracking-tighter">
                                 <i class="fas fa-clock mr-1"></i> Tenggat:
-                                {{ $req->updated_at->addDays(7)->format('d M Y') }}
+                                {{ $req->created_at->addDays(7)->format('d M Y') }}
                             </p>
                         @elseif($req->status == 'rejected')
                             <p class="text-[10px] text-rose-400 italic font-medium">
