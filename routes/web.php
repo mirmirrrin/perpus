@@ -65,6 +65,7 @@ Route::middleware(['auth'])->group(function () use ($roleMiddleware) {
             Route::get('/borrow', 'borrowing')->name('borrow');
             Route::get('/book/{id}', 'showBookDetail')->name('book.show');
             Route::get('/return', 'returning')->name('return');
+            Route::get('/history', 'history')->name('history');
         });
 
         Route::controller(TransactionController::class)->group(function () {

@@ -47,7 +47,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#fcf7f8]/50 border-b border-gray-50">
-                        <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">Urutan</th>
+                        <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">Nomor</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Label Kategori</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center w-48">Aksi</th>
                     </tr>

@@ -49,7 +49,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#fcf7f8]/50 border-b border-gray-50">
-                        <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">ID Siswa</th>
+                        <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">Nomor</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nama Lengkap</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Akun Email</th>
                         <th class="px-10 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Nomor Telepon</th>
@@ -63,7 +63,11 @@
                         {{-- ID --}}
                         <td class="px-10 py-6">
                             <span class="bg-[#fdf2f3] text-[#c65c6a] px-4 py-2 rounded-xl font-black text-[10px] border border-[#f5e1e4] shadow-sm">
-                                #{{ $student->id }}
+                                @if($student instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                                {{ $student->firstItem() + $index }}
+                                @else
+                                {{ $loop->iteration }}
+                                @endif
                             </span>
                         </td>
 

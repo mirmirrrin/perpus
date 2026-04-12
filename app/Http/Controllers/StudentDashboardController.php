@@ -29,7 +29,7 @@ class StudentDashboardController extends Controller
                         ->orWhere('username', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            ->oldest()
             ->get();
 
         return view('admin.student.index', compact('students'));
@@ -120,16 +120,20 @@ class StudentDashboardController extends Controller
     {
         $userId = auth()->id();
 
+        // 1. Hitung buku yang lagi dibawa (Pinjaman Aktif)
         $activeBorrowCount = Transaction::where('user_id', $userId)->where('status', 'borrowed')->count();
-        $pendingCount      = Transaction::where('user_id', $userId)->where('status', 'pending')->count();
 
+        // 2. Hitung SEMUA riwayat (Total Riwayat)
+        $totalHistoryCount = Transaction::where('user_id', $userId)->count();
+
+        // 3. Ambil 3 data terakhir buat list di bawah
         $myRequests = Transaction::with('book')
             ->where('user_id', $userId)
             ->latest()
             ->take(3)
             ->get();
 
-        return view('siswa.dashboard', compact('activeBorrowCount', 'pendingCount', 'myRequests'));
+            return view('siswa.dashboard', compact('activeBorrowCount', 'totalHistoryCount', 'myRequests'));
     }
 
     public function borrowing(Request $request)
@@ -181,5 +185,33 @@ class StudentDashboardController extends Controller
         }
 
         return view('siswa.pages.returning', compact('transactions'));
+    }
+
+    public function history(Request $request) // Tambahkan Request $request di sini
+    {
+        // Ambil keyword dari input search
+        $search = $request->input('search');
+
+        // 1. Ambil data statistik tetap (opsional)
+        $activeBorrowCount = Transaction::where('user_id', auth()->id())
+            ->where('status', 'borrowed')
+            ->count();
+
+        // 2. Query dasar: Ambil transaksi milik user yang sedang login
+        $query = Transaction::with('book')
+            ->where('user_id', auth()->id());
+
+        // 3. LOGIKA SEARCH: Jika ada input search, filter berdasarkan nama buku
+        if ($search) {
+            $query->whereHas('book', function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 4. Eksekusi query dengan urutan terbaru
+        $myRequests = $query->latest()->get();
+
+        // 5. Kirim data ke view
+        return view('siswa.pages.history', compact('activeBorrowCount', 'myRequests'));
     }
 }

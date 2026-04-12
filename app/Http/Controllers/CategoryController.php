@@ -17,7 +17,7 @@ class CategoryController extends Controller
         $categories = Category::when($search, function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%");
         })
-            ->latest()
+            ->oldest()
             ->get();
 
         return view('admin.category.index', compact('categories'));

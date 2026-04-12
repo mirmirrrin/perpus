@@ -47,7 +47,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-[#fcf7f8]/50 border-b border-gray-50">
-                        <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">No</th>
+                        <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Nomor</th>
                         <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Peminjam</th>
                         <th class="px-8 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Judul Buku</th>
                         <th class="px-6 py-7 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Tanggal</th>

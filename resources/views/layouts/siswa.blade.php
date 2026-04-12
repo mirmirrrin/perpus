@@ -76,6 +76,10 @@
             <a href="{{ route('siswa.return') }}" class="{{ $itemClass }} {{ request()->routeIs('siswa.return') ? 'sidebar-active' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                 <i class="fas fa-history mr-4 group-hover:scale-125 transition-transform"></i> Pengembalian Buku
             </a>
+
+            <a href="{{ route('siswa.history') }}" class="{{ $itemClass }} {{ request()->routeIs('siswa.history') ? 'sidebar-active' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                <i class="fas fa-history mr-4 group-hover:scale-125 transition-transform"></i> Riwayat
+            </a>
         </nav>
 
         <div class="p-10 border-t border-white/5">

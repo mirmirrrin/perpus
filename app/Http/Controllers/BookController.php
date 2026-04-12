@@ -22,7 +22,7 @@ class BookController extends Controller
                     ->orWhere('author', 'like', "%{$search}%")
                     ->orWhere('publisher', 'like', "%{$search}%");
             })
-            ->latest()
+            ->oldest()
             ->get();
 
         return view('admin.book.index', compact('books'));
