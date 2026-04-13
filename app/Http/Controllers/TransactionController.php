@@ -12,7 +12,7 @@ class TransactionController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
-    | ADMIN SIDE: Monitoring & CRUD
+    | ADMIN SIDE: Transaction & CRUD
     |--------------------------------------------------------------------------
     */
 

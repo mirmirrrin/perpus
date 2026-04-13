@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class BookController extends Controller
 {
     /**
-     * Tampilkan daftar koleksi buku
+     * Tampilkan daftar Kelola buku
      */
     public function index(Request $request)
     {

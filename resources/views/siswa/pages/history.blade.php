@@ -23,6 +23,28 @@
             </div>
         </header>
 
+        {{-- Search --}}
+        <div class="mb-16 flex justify-center">
+            <form action="{{ route('siswa.history') }}" method="GET" class="relative w-full max-w-2xl group">
+
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Cari judul, penulis, atau penerbit..."
+                    class="w-full pl-16 pr-16 py-6 rounded-[2.5rem] bg-white border-2 border-transparent shadow-lg focus:border-[#c65c6a] focus:ring-0 font-bold text-base text-gray-700 placeholder:text-gray-300">
+
+                <div class="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#c65c6a]">
+                    <i class="fas fa-search text-xl"></i>
+                </div>
+
+                @if (request('search'))
+                    <a href="{{ route('siswa.history') }}"
+                        class="absolute right-6 top-1/2 -translate-y-1/2 text-gray-300 hover:text-red-500">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </a>
+                @endif
+
+            </form>
+        </div>
+
         {{-- Main Table Card --}}
         <div
             class="bg-white rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
@@ -35,7 +57,8 @@
                                 Pinjam</th>
                             <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Status
                             </th>
-                            <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Keterangan</th>
+                            <th class="px-10 py-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">
+                                Keterangan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50">
@@ -74,7 +97,7 @@
                                 <td class="px-10 py-8">
                                     <div class="text-[11px] font-bold text-gray-600 uppercase tracking-tighter">
                                         {{ $req->created_at->format('d M Y') }}
-                                        
+
                                     </div>
                                 </td>
 
@@ -104,15 +127,19 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr>
-                                <td colspan="4" class="p-32 text-center">
-                                    <div class="flex flex-col items-center opacity-20">
-                                        <i class="fas fa-history text-8xl mb-6 text-gray-400"></i>
-                                        <p class="text-gray-500 font-black uppercase tracking-[0.4em] text-[10px]">Belum ada
-                                            riwayat transaksi</p>
-                                    </div>
-                                </td>
-                            </tr>
+                            <div class="col-span-full py-40 text-center">
+                                <i class="fas fa-ghost text-8xl text-gray-200 mb-6"></i>
+                                <h4 class="font-black text-gray-300 uppercase tracking-widest text-xs">
+                                    Buku tidak ditemukan
+                                </h4>
+                                <p class="text-gray-400 text-[10px] mt-3 italic">
+                                    Coba kata kunci lain.
+                                </p>
+                                <a href="{{ route('siswa.history') }}"
+                                    class="inline-block mt-6 bg-[#c65c6a] text-white px-6 py-3 rounded-xl text-xs font-black uppercase">
+                                    Reset Pencarian
+                                </a>
+                            </div>
                         @endforelse
                     </tbody>
                 </table>
